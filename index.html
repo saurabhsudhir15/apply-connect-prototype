@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply Connect 2.0 — Prototype</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f3f2ef;
+      color: #191919;
+      min-height: 100vh;
+    }
+
+    .screen { display: none; min-height: 100vh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+    .progress-steps { display: flex; gap: 4px; align-items: center; }
+    .step {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600;
+      background: #e0e0e0; color: #999;
+    }
+    .step.done { background: #057642; color: #fff; }
+    .step.active { background: #0A66C2; color: #fff; }
+    .step-line { width: 32px; height: 2px; background: #e0e0e0; }
+    .step-line.done { background: #057642; }
+    .step-label { margin-left: 12px; font-size: 12px; color: #666; }
+    .step-label span { font-weight: 600; color: #191919; }
+
+    /* ── LINKEDIN NAV ── */
+    .li-nav {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      gap: 16px;
+    }
+    .li-logo {
+      font-size: 22px; font-weight: 800;
+      color: #0A66C2; letter-spacing: -1px;
+    }
+    .li-nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .li-nav-link {
+      padding: 4px 12px; font-size: 13px; color: #666;
+      border-radius: 4px; cursor: pointer;
+    }
+    .li-nav-link:hover { background: #f3f2ef; }
+
+    /* ── CONTENT WRAPPER ── */
+    .content { max-width: 900px; margin: 24px auto; padding: 0 24px; flex: 1; }
+
+    /* ── LI SEARCH BAR ── */
+    .li-search-bar {
+      background: #fff; border-bottom: 1px solid #e0e0e0;
+      padding: 10px 24px; display: flex; gap: 10px; align-items: center;
+    }
+    .li-search-input {
+      flex: 1; max-width: 320px; padding: 8px 14px;
+      border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+      background: #EEF3FB;
+    }
+    .li-search-loc {
+      padding: 8px 14px; border: 1px solid #ccc;
+      border-radius: 4px; font-size: 14px; width: 200px;
+    }
+    .li-filter-btn {
+      padding: 7px 14px; border: 1px solid #666;
+      border-radius: 16px; font-size: 13px; background: #fff;
+      cursor: pointer; color: #444;
+    }
+
+    /* ── TWO PANEL LAYOUT ── */
+    .jobs-layout {
+      display: flex; gap: 0; max-width: 1100px;
+      margin: 0 auto; padding: 16px 24px; flex: 1;
+    }
+
+    /* LEFT PANEL */
+    .jobs-left {
+      width: 380px; flex-shrink: 0;
+      border: 1px solid #e0e0e0; border-radius: 8px;
+      background: #fff; overflow: hidden;
+      align-self: flex-start;
+    }
+    .jobs-left-header {
+      padding: 14px 16px; border-bottom: 1px solid #e0e0e0;
+      font-size: 13px; color: #666;
+    }
+    .jobs-left-header strong { color: #191919; }
+    .job-list-card {
+      padding: 14px 16px; border-bottom: 1px solid #f0f0f0;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .job-list-card:hover { background: #f9f9f9; }
+    .job-list-card.selected { background: #EEF3FB; border-left: 3px solid #0A66C2; }
+    .jlc-row { display: flex; gap: 12px; align-items: flex-start; }
+    .jlc-logo {
+      width: 40px; height: 40px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0;
+    }
+    .jlc-title { font-size: 14px; font-weight: 600; color: #0A66C2; margin-bottom: 2px; }
+    .jlc-company { font-size: 13px; color: #444; margin-bottom: 2px; }
+    .jlc-meta { font-size: 12px; color: #888; }
+    .jlc-badges { display: flex; gap: 6px; margin-top: 7px; }
+    .badge-ea {
+      font-size: 11px; font-weight: 600; color: #057642;
+      border: 1px solid #057642; border-radius: 10px; padding: 2px 8px;
+    }
+    .badge-ext {
+      font-size: 11px; font-weight: 600; color: #B24020;
+      border: 1px solid #B24020; border-radius: 10px; padding: 2px 8px;
+    }
+    .badge-promo {
+      font-size: 11px; color: #666;
+      border: 1px solid #ccc; border-radius: 10px; padding: 2px 8px;
+    }
+
+    /* RIGHT PANEL */
+    .jobs-right {
+      flex: 1; margin-left: 16px;
+      border: 1px solid #e0e0e0; border-radius: 8px;
+      background: #fff; padding: 24px;
+      align-self: flex-start;
+    }
+    .jd-top { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+    .jd-logo {
+      width: 56px; height: 56px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 22px; color: #fff; flex-shrink: 0;
+    }
+    .jd-title { font-size: 20px; font-weight: 600; color: #191919; margin-bottom: 4px; }
+    .jd-company { font-size: 15px; color: #0A66C2; font-weight: 500; margin-bottom: 4px; cursor: pointer; }
+    .jd-company:hover { text-decoration: underline; }
+    .jd-location { font-size: 14px; color: #666; margin-bottom: 2px; }
+    .jd-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .jd-pill {
+      font-size: 12px; color: #444; background: #f3f2ef;
+      border-radius: 12px; padding: 3px 10px;
+    }
+    .jd-stats { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.6; }
+    .jd-stats span { color: #0A66C2; font-weight: 500; }
+    .jd-actions { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+    .btn-easy-apply {
+      background: #0A66C2; color: #fff;
+      border: none; padding: 10px 20px;
+      border-radius: 20px; font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-easy-apply:hover { background: #004182; }
+    .btn-external {
+      background: #fff; color: #0A66C2;
+      border: 1px solid #0A66C2; padding: 10px 20px;
+      border-radius: 20px; font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-external:hover { background: #EEF3FB; }
+    .btn-save {
+      background: #fff; color: #444;
+      border: 1px solid #ccc; padding: 10px 16px;
+      border-radius: 20px; font-size: 14px; cursor: pointer;
+    }
+    .apply-note {
+      font-size: 12px; color: #B24020; margin-top: -12px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .jd-divider { border: none; border-top: 1px solid #e0e0e0; margin: 16px 0; }
+    .jd-section-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .jd-body { font-size: 14px; line-height: 1.7; color: #444; }
+    .jd-body ul { padding-left: 20px; margin: 8px 0; }
+    .jd-body li { margin-bottom: 4px; }
+
+    /* ── EXTENSION SCREEN ── */
+    .ext-screen {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      padding: 40px 32px;
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .ext-icon {
+      width: 64px; height: 64px; background: #0A66C2;
+      border-radius: 12px; margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff;
+    }
+    .ext-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .ext-subtitle { font-size: 14px; color: #666; margin-bottom: 28px; }
+    .ext-steps { text-align: left; margin-bottom: 28px; }
+    .ext-step-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+    .ext-step-item:last-child { border-bottom: none; }
+    .check {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0;
+      background: #e0e0e0; color: #999;
+    }
+    .check.done { background: #057642; color: #fff; }
+    .check.loading { background: #0A66C2; color: #fff; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .progress-ring {
+      width: 100%; height: 6px; background: #e0e0e0;
+      border-radius: 3px; margin-bottom: 24px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: #0A66C2; border-radius: 3px;
+      width: 0; transition: width 0.4s ease;
+    }
+    .btn-continue {
+      background: #0A66C2; color: #fff;
+      border: none; padding: 12px 32px;
+      border-radius: 20px; font-size: 15px; font-weight: 600;
+      cursor: pointer; width: 100%;
+    }
+    .btn-continue:hover { background: #004182; }
+
+    /* ── WORKDAY REGISTRATION ── */
+    .wd-header {
+      background: #cc0000;
+      padding: 14px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .wd-logo { color: #fff; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+    .wd-logo span { font-weight: 300; }
+    .wd-content { max-width: 480px; margin: 32px auto; padding: 0 24px; }
+    .wd-card {
+      background: #fff; border-radius: 4px;
+      border: 1px solid #ddd; padding: 32px;
+    }
+    .wd-card-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .wd-card-sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; display: block; }
+    .form-input {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 14px; color: #191919;
+    }
+    .form-input.prefilled {
+      background: #EEF3FB; border-color: #0A66C2;
+      color: #0A66C2;
+    }
+    .prefilled-badge {
+      font-size: 11px; color: #0A66C2; font-weight: 500;
+      margin-top: 4px; display: flex; align-items: center; gap: 4px;
+    }
+    .btn-wd {
+      background: #cc0000; color: #fff;
+      border: none; padding: 11px 24px;
+      border-radius: 4px; font-size: 14px; font-weight: 600;
+      cursor: pointer; width: 100%; margin-top: 8px;
+    }
+    .btn-wd:hover { background: #aa0000; }
+    .ext-banner {
+      background: #EEF3FB; border: 1px solid #0A66C2;
+      border-radius: 4px; padding: 10px 14px;
+      font-size: 12px; color: #0A66C2;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* ── ATS FORM ── */
+    .ats-content { max-width: 720px; margin: 0 auto; padding: 0 24px 40px; }
+    .ats-job-bar {
+      background: #fff; border: 1px solid #ddd;
+      border-radius: 4px; padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .ats-job-title { font-size: 15px; font-weight: 600; }
+    .ats-job-co { font-size: 13px; color: #666; }
+    .section-card {
+      background: #fff; border: 1px solid #ddd;
+      border-radius: 4px; padding: 24px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 15px; font-weight: 700;
+      margin-bottom: 18px; padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 14px; color: #191919;
+      resize: vertical; min-height: 80px;
+    }
+    .form-select {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 14px; color: #191919;
+      background: #fff;
+    }
+    .resume-row {
+      display: flex; align-items: center; gap: 12px;
+      background: #f9f9f9; border: 1px solid #ddd;
+      border-radius: 4px; padding: 12px 14px;
+    }
+    .resume-icon { font-size: 20px; }
+    .resume-name { font-size: 14px; font-weight: 500; }
+    .resume-size { font-size: 12px; color: #888; }
+    .screening-note {
+      background: #FFF8E1; border: 1px solid #FFD54F;
+      border-radius: 4px; padding: 10px 14px;
+      font-size: 13px; color: #795548;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .filled-count {
+      background: #E8F5E9; border: 1px solid #A5D6A7;
+      border-radius: 4px; padding: 10px 14px;
+      font-size: 13px; color: #2E7D32;
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .submit-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .btn-submit {
+      background: #cc0000; color: #fff;
+      border: none; padding: 12px 32px;
+      border-radius: 4px; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit:hover { background: #aa0000; }
+    .btn-suggest {
+      background: #EEF3FB; color: #0A66C2;
+      border: 1px solid #0A66C2; padding: 5px 12px;
+      border-radius: 12px; font-size: 12px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-suggest:hover { background: #dce8f7; }
+    .btn-suggest.loading { opacity: 0.6; cursor: wait; }
+    .suggest-hint {
+      font-size: 11px; color: #0A66C2; margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* ── CONFIRMATION ── */
+    .confirm-screen {
+      background: #fff; border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      padding: 48px 40px; max-width: 540px;
+      margin: 0 auto; text-align: center;
+    }
+    .confirm-icon { font-size: 56px; margin-bottom: 16px; }
+    .confirm-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-sub { font-size: 15px; color: #444; margin-bottom: 32px; }
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px; margin-bottom: 32px;
+    }
+    .stat-box {
+      background: #f9f9f9; border-radius: 8px;
+      padding: 16px 8px;
+    }
+    .stat-val { font-size: 28px; font-weight: 800; color: #0A66C2; }
+    .stat-label { font-size: 12px; color: #666; margin-top: 4px; }
+    .confirm-divider { border: none; border-top: 1px solid #eee; margin: 24px 0; }
+    .before-after {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 28px; text-align: left;
+    }
+    .ba-box { border-radius: 8px; padding: 14px 16px; }
+    .ba-before { background: #FFF3F3; border: 1px solid #FFCDD2; }
+    .ba-after { background: #E8F5E9; border: 1px solid #A5D6A7; }
+    .ba-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .ba-before .ba-label { color: #B71C1C; }
+    .ba-after .ba-label { color: #1B5E20; }
+    .ba-item { font-size: 12px; color: #444; margin-bottom: 5px; display: flex; align-items: flex-start; gap: 6px; }
+    .btn-back {
+      background: #0A66C2; color: #fff;
+      border: none; padding: 12px 32px;
+      border-radius: 20px; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-back:hover { background: #004182; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+      .before-after { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 1 — LinkedIn Job Listing
+═══════════════════════════════════════════════ -->
+<div class="screen active" id="screen1">
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step active">1</div>
+      <div class="step-line"></div>
+      <div class="step">2</div>
+      <div class="step-line"></div>
+      <div class="step">3</div>
+      <div class="step-line"></div>
+      <div class="step">4</div>
+      <div class="step-line"></div>
+      <div class="step">5</div>
+    </div>
+    <div class="step-label">Step 1 of 5 — <span>LinkedIn Jobs</span></div>
+  </div>
+
+  <!-- LinkedIn Nav -->
+  <div class="li-nav">
+    <div class="li-logo">in</div>
+    <div style="flex:1; margin: 0 16px;">
+      <input style="width:220px; padding:6px 12px; border:1px solid #ccc; border-radius:4px; font-size:13px;" value="Product Manager" />
+    </div>
+    <div class="li-nav-links">
+      <div class="li-nav-link">Home</div>
+      <div class="li-nav-link" style="color:#0A66C2; font-weight:600; border-bottom: 2px solid #0A66C2;">Jobs</div>
+      <div class="li-nav-link">Messaging</div>
+      <div class="li-nav-link">Rohan S. ▾</div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="li-search-bar">
+    <input class="li-search-input" value="Senior Product Manager" />
+    <input class="li-search-loc" value="Bengaluru, India" />
+    <button class="li-filter-btn">Date posted ▾</button>
+    <button class="li-filter-btn">Experience level ▾</button>
+    <button class="li-filter-btn">All filters</button>
+  </div>
+
+  <!-- Two Panel -->
+  <div class="jobs-layout">
+
+    <!-- LEFT: Job List -->
+    <div class="jobs-left">
+      <div class="jobs-left-header"><strong>1,240 results</strong> for Senior Product Manager in Bengaluru</div>
+
+      <!-- Card 1 — selected -->
+      <div class="job-list-card selected">
+        <div class="jlc-row">
+          <div class="jlc-logo" style="background:#cc0000;">R</div>
+          <div>
+            <div class="jlc-title">Senior Product Manager — Payments</div>
+            <div class="jlc-company">Razorpay</div>
+            <div class="jlc-meta">Bengaluru · Hybrid · 2 days ago</div>
+            <div class="jlc-badges">
+              <span class="badge-ext">Apply on website</span>
+              <span class="badge-promo">Promoted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="job-list-card">
+        <div class="jlc-row">
+          <div class="jlc-logo" style="background:#FF6900;">S</div>
+          <div>
+            <div class="jlc-title">Product Manager II — Growth</div>
+            <div class="jlc-company">Swiggy</div>
+            <div class="jlc-meta">Bengaluru · On-site · 1 day ago</div>
+            <div class="jlc-badges">
+              <span class="badge-ea">Easy Apply</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="job-list-card">
+        <div class="jlc-row">
+          <div class="jlc-logo" style="background:#1a73e8;">G</div>
+          <div>
+            <div class="jlc-title">Senior PM — Merchant Platform</div>
+            <div class="jlc-company">Google Pay</div>
+            <div class="jlc-meta">Bengaluru · Hybrid · 3 days ago</div>
+            <div class="jlc-badges">
+              <span class="badge-ext">Apply on website</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="job-list-card">
+        <div class="jlc-row">
+          <div class="jlc-logo" style="background:#4B0082;">Z</div>
+          <div>
+            <div class="jlc-title">Product Manager — Lending</div>
+            <div class="jlc-company">Zepto</div>
+            <div class="jlc-meta">Bengaluru · Remote · 4 days ago</div>
+            <div class="jlc-badges">
+              <span class="badge-ea">Easy Apply</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Job Detail -->
+    <div class="jobs-right">
+      <div class="jd-top">
+        <div class="jd-logo" style="background:#cc0000;">R</div>
+        <div>
+          <div class="jd-title">Senior Product Manager — Payments</div>
+          <div class="jd-company">Razorpay</div>
+          <div class="jd-location">Bengaluru, Karnataka, India · Hybrid · Full-time</div>
+        </div>
+      </div>
+
+      <div class="jd-pills">
+        <span class="jd-pill">Mid-Senior level</span>
+        <span class="jd-pill">5–8 years</span>
+        <span class="jd-pill">Fintech</span>
+        <span class="jd-pill">Platform PM</span>
+      </div>
+
+      <div class="jd-stats">
+        Posted 2 days ago · <span>234 applicants</span> · <span>3 connections</span> work here
+      </div>
+
+      <div class="jd-actions">
+        <button class="btn-external" onclick="goTo(2)">Apply on company website</button>
+        <button class="btn-save">Save</button>
+      </div>
+      <div class="apply-note">⚠️ You will be redirected to Razorpay's Workday portal to complete this application.</div>
+
+      <hr class="jd-divider" />
+
+      <div class="jd-section-title">About the job</div>
+      <div class="jd-body">
+        <p>We are looking for a Senior Product Manager to own our payments infrastructure roadmap — from checkout optimisation to settlement flows.</p>
+        <br/>
+        <p><strong>What you will do:</strong></p>
+        <ul>
+          <li>Define and drive the product roadmap for Razorpay's core payments platform</li>
+          <li>Work with engineering and design to reduce payment failure rates for 8M+ merchants</li>
+          <li>Own checkout conversion metrics and drive improvements across the funnel</li>
+          <li>Collaborate with business and partnerships teams on new payment method integrations</li>
+        </ul>
+        <br/>
+        <p><strong>What we are looking for:</strong></p>
+        <ul>
+          <li>5+ years of product management experience, preferably in fintech or payments</li>
+          <li>Strong analytical mindset — comfortable with SQL, dashboards, and data-driven decisions</li>
+          <li>Experience working on platform or infrastructure products</li>
+          <li>Excellent written and verbal communication skills</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 2 — Workday Registration (Apply Connect activates)
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen2">
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step active">2</div>
+      <div class="step-line"></div>
+      <div class="step">3</div>
+      <div class="step-line"></div>
+      <div class="step">4</div>
+      <div class="step-line"></div>
+      <div class="step">5</div>
+    </div>
+    <div class="step-label">Step 2 of 5 — <span>Workday Account Creation</span></div>
+  </div>
+
+  <div class="wd-header">
+    <div class="wd-logo">Workday<span>®</span></div>
+  </div>
+
+  <div class="wd-content">
+    <div class="wd-card">
+      <div class="wd-card-title">Create your Workday account</div>
+      <div class="wd-card-sub">Required to apply for Senior Product Manager at Razorpay</div>
+
+      <div class="ext-banner">
+        ⚡ <strong>Apply Connect detected!</strong> Your email has been pre-filled from your LinkedIn profile.
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input prefilled" type="email" value="rohan.sharma@gmail.com" readonly />
+        <div class="prefilled-badge">⚡ Pre-filled by Apply Connect</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Create a password</label>
+        <input class="form-input" type="password" placeholder="Create a password for this portal" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm password</label>
+        <input class="form-input" type="password" placeholder="Confirm your password" />
+      </div>
+
+      <button class="btn-wd" onclick="goTo(3)">Create Account and Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 3 — Apply Connect Loading
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen3">
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step active">3</div>
+      <div class="step-line"></div>
+      <div class="step">4</div>
+      <div class="step-line"></div>
+      <div class="step">5</div>
+    </div>
+    <div class="step-label">Step 3 of 5 — <span>Apply Connect Loading</span></div>
+  </div>
+
+  <div class="wd-header">
+    <div class="wd-logo">Workday<span>®</span></div>
+  </div>
+
+  <div class="content" style="display:flex; align-items:center; justify-content:center; padding-top: 40px;">
+    <div class="ext-screen">
+      <div class="ext-icon">⚡</div>
+      <div class="ext-title">Apply Connect is loading your application</div>
+      <div class="ext-subtitle">Pulling your LinkedIn profile data and pre-filling the application form. This takes a few seconds.</div>
+
+      <div class="progress-ring">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="ext-steps">
+        <div class="ext-step-item">
+          <div class="check done" id="chk1">✓</div>
+          <span>LinkedIn profile detected</span>
+        </div>
+        <div class="ext-step-item">
+          <div class="check loading" id="chk2">⟳</div>
+          <span id="step2text">Uploading resume to Workday...</span>
+        </div>
+        <div class="ext-step-item">
+          <div class="check" id="chk3">3</div>
+          <span>Pre-filling application fields</span>
+        </div>
+        <div class="ext-step-item">
+          <div class="check" id="chk4">4</div>
+          <span>Ready — opening your application</span>
+        </div>
+      </div>
+
+      <button class="btn-continue" id="continueBtn" onclick="goTo(4)" style="display:none;">
+        Continue to Application Form →
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 4 — ATS Application Form
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen4">
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step active">4</div>
+      <div class="step-line"></div>
+      <div class="step">5</div>
+    </div>
+    <div class="step-label">Step 4 of 5 — <span>Application Form</span></div>
+  </div>
+
+
+  <div class="wd-header">
+    <div class="wd-logo">Workday<span>®</span></div>
+  </div>
+
+  <div class="ats-content" style="margin-top: 24px;">
+
+    <div class="ats-job-bar">
+      <div>
+        <div class="ats-job-title">Senior Product Manager — Payments</div>
+        <div class="ats-job-co">Razorpay · Bengaluru, India</div>
+      </div>
+    </div>
+
+    <div class="filled-count">
+      ✅ <strong>Apply Connect has pre-filled 9 of 12 fields</strong> from your LinkedIn profile. Complete the 3 screening questions below to submit.
+    </div>
+
+    <!-- Personal Info -->
+    <div class="section-card">
+      <div class="section-title">Personal Information</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input prefilled" value="Rohan" readonly />
+          <div class="prefilled-badge">⚡ Pre-filled</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input prefilled" value="Sharma" readonly />
+          <div class="prefilled-badge">⚡ Pre-filled</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input prefilled" value="rohan.sharma@gmail.com" readonly />
+          <div class="prefilled-badge">⚡ Pre-filled</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input class="form-input prefilled" value="+91 98765 43210" readonly />
+          <div class="prefilled-badge">⚡ Pre-filled</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input class="form-input prefilled" value="Bengaluru, Karnataka, India" readonly />
+        <div class="prefilled-badge">⚡ Pre-filled</div>
+      </div>
+    </div>
+
+    <!-- Resume -->
+    <div class="section-card">
+      <div class="section-title">Resume</div>
+      <div class="resume-row">
+        <div class="resume-icon">📄</div>
+        <div>
+          <div class="resume-name">Rohan_Sharma_PM_Resume.pdf</div>
+          <div class="resume-size">LinkedIn resume · 184 KB · Uploaded by Apply Connect</div>
+        </div>
+        <div class="prefilled-badge" style="margin-left:auto;">⚡ Pre-filled</div>
+      </div>
+    </div>
+
+    <!-- Work Experience -->
+    <div class="section-card">
+      <div class="section-title">Work Experience</div>
+      <div class="form-group">
+        <label class="form-label">Most Recent Role</label>
+        <input class="form-input prefilled" value="Senior Product Manager — ApplyBoard (2021–2024)" readonly />
+        <div class="prefilled-badge">⚡ Pre-filled</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Previous Role</label>
+        <input class="form-input prefilled" value="Product Manager — Razorthink AI (2018–2021)" readonly />
+        <div class="prefilled-badge">⚡ Pre-filled</div>
+      </div>
+    </div>
+
+    <!-- Screening Questions -->
+    <div class="section-card">
+      <div class="section-title">Screening Questions</div>
+      <div class="screening-note">
+        ⚡ <strong>Apply Connect Screening Assistant (Beta)</strong> — Click "Suggest answer" on any question. The extension reads your LinkedIn profile and drafts a response. Review and edit before submitting.
+      </div>
+
+      <div class="form-group">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0;">Q1. Why do you want to join Razorpay?</label>
+          <button class="btn-suggest" onclick="suggestAnswer('q1')">⚡ Suggest answer</button>
+        </div>
+        <textarea class="form-textarea" id="q1" placeholder="Type your answer here..."></textarea>
+        <div class="suggest-hint" id="q1-hint" style="display:none;">✏️ Suggested from your LinkedIn profile — edit before submitting</div>
+      </div>
+
+      <div class="form-group">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0;">Q2. Describe your experience working on payment or fintech products.</label>
+          <button class="btn-suggest" onclick="suggestAnswer('q2')">⚡ Suggest answer</button>
+        </div>
+        <textarea class="form-textarea" id="q2" placeholder="Type your answer here..."></textarea>
+        <div class="suggest-hint" id="q2-hint" style="display:none;">✏️ Suggested from your LinkedIn profile — edit before submitting</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Q3. What is your current notice period?</label>
+        <select class="form-select">
+          <option value="">Select notice period</option>
+          <option>Immediate joiner</option>
+          <option>15 days</option>
+          <option>30 days</option>
+          <option>60 days</option>
+          <option>90 days</option>
+        </select>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-submit" onclick="goTo(5)">Submit Application →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 5 — Confirmation
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen5">
+  <div class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+    </div>
+    <div class="step-label"><span>Application submitted successfully</span></div>
+  </div>
+
+  <div class="li-nav">
+    <div class="li-logo">in</div>
+  </div>
+
+  <div class="content" style="display:flex; align-items:center; justify-content:center; padding-top: 32px;">
+    <div class="confirm-screen">
+      <div class="confirm-icon">✅</div>
+      <div class="confirm-title">Application Submitted!</div>
+      <div class="confirm-sub">Senior Product Manager — Razorpay · Bengaluru</div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-val">3 min</div>
+          <div class="stat-label">Time to apply</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">9</div>
+          <div class="stat-label">Fields pre-filled</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">3</div>
+          <div class="stat-label">Fields you completed</div>
+        </div>
+      </div>
+
+      <hr class="confirm-divider" />
+
+      <div class="before-after">
+        <div class="ba-box ba-before">
+          <div class="ba-label">Without Apply Connect</div>
+          <div class="ba-item">❌ Create Workday account from scratch</div>
+          <div class="ba-item">❌ Re-enter name, email, phone manually</div>
+          <div class="ba-item">❌ Upload resume from device</div>
+          <div class="ba-item">❌ Re-type full work history</div>
+          <div class="ba-item">❌ ~15 minutes per application</div>
+        </div>
+        <div class="ba-box ba-after">
+          <div class="ba-label">With Apply Connect</div>
+          <div class="ba-item">✅ Email pre-filled at account creation</div>
+          <div class="ba-item">✅ Personal info loaded automatically</div>
+          <div class="ba-item">✅ Resume uploaded by extension</div>
+          <div class="ba-item">✅ Work history pre-filled</div>
+          <div class="ba-item">✅ ~3 minutes per application</div>
+        </div>
+      </div>
+
+      <button class="btn-back" onclick="goTo(1)">← Back to LinkedIn Jobs</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  function goTo(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen' + n).classList.add('active');
+    window.scrollTo(0, 0);
+    if (n === 3) runExtAnimation();
+  }
+
+  const suggestions = {
+    q1: "Razorpay is solving a problem I have worked on directly — reducing friction in payment flows for merchants and customers. At ApplyBoard, I owned payment infrastructure for a platform processing tuition payments across 12 countries, and I experienced first-hand how a broken payment experience erodes trust. I want to bring that product depth to Razorpay's scale and help drive success rates higher for 8M+ merchants.",
+    q2: "At ApplyBoard I led the payments platform serving international students and partner institutions. I redesigned the checkout flow to reduce drop-off by 22%, integrated with Stripe and local payment providers across India, Canada, and the UK, and built a reconciliation dashboard that reduced settlement disputes by 40%. I understand both the technical complexity of payment rails and the user experience tradeoffs that drive conversion."
+  };
+
+  function suggestAnswer(id) {
+    const btn = document.querySelector(`button[onclick="suggestAnswer('${id}')"]`);
+    const ta = document.getElementById(id);
+    const hint = document.getElementById(id + '-hint');
+    btn.textContent = '⟳ Generating...';
+    btn.classList.add('loading');
+    btn.disabled = true;
+    setTimeout(() => {
+      ta.value = suggestions[id];
+      ta.style.borderColor = '#0A66C2';
+      hint.style.display = 'block';
+      btn.textContent = '✓ Suggested';
+      btn.classList.remove('loading');
+      btn.style.background = '#E8F5E9';
+      btn.style.color = '#057642';
+      btn.style.borderColor = '#057642';
+    }, 1200);
+  }
+
+  function runExtAnimation() {
+    const fill = document.getElementById('progressFill');
+    const chk2 = document.getElementById('chk2');
+    const chk3 = document.getElementById('chk3');
+    const chk4 = document.getElementById('chk4');
+    const step2text = document.getElementById('step2text');
+    const btn = document.getElementById('continueBtn');
+
+    fill.style.width = '0';
+    chk2.className = 'check loading';
+    chk3.className = 'check';
+    chk3.textContent = '3';
+    chk4.className = 'check';
+    chk4.textContent = '4';
+    btn.style.display = 'none';
+
+    setTimeout(() => { fill.style.width = '35%'; }, 100);
+
+    setTimeout(() => {
+      chk2.className = 'check done';
+      chk2.textContent = '✓';
+      step2text.textContent = 'Resume uploaded successfully';
+      chk3.className = 'check loading';
+      chk3.textContent = '⟳';
+      fill.style.width = '65%';
+    }, 1400);
+
+    setTimeout(() => {
+      chk3.className = 'check done';
+      chk3.textContent = '✓';
+      chk4.className = 'check loading';
+      chk4.textContent = '⟳';
+      fill.style.width = '90%';
+    }, 2600);
+
+    setTimeout(() => {
+      chk4.className = 'check done';
+      chk4.textContent = '✓';
+      fill.style.width = '100%';
+      btn.style.display = 'block';
+    }, 3800);
+  }
+</script>
+</body>
+</html>
