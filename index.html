@@ -411,20 +411,6 @@
      SCREEN 1 — LinkedIn Job Listing
 ═══════════════════════════════════════════════ -->
 <div class="screen active" id="screen1">
-  <div class="progress-bar">
-    <div class="progress-steps">
-      <div class="step active">1</div>
-      <div class="step-line"></div>
-      <div class="step">2</div>
-      <div class="step-line"></div>
-      <div class="step">3</div>
-      <div class="step-line"></div>
-      <div class="step">4</div>
-      <div class="step-line"></div>
-      <div class="step">5</div>
-    </div>
-    <div class="step-label">Step 1 of 5 — <span>LinkedIn Jobs</span></div>
-  </div>
 
   <!-- LinkedIn Nav -->
   <div class="li-nav">
@@ -578,20 +564,6 @@
      SCREEN 2 — Workday Registration (Apply Connect activates)
 ═══════════════════════════════════════════════ -->
 <div class="screen" id="screen2">
-  <div class="progress-bar">
-    <div class="progress-steps">
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step active">2</div>
-      <div class="step-line"></div>
-      <div class="step">3</div>
-      <div class="step-line"></div>
-      <div class="step">4</div>
-      <div class="step-line"></div>
-      <div class="step">5</div>
-    </div>
-    <div class="step-label">Step 2 of 5 — <span>Workday Account Creation</span></div>
-  </div>
 
   <div class="wd-header">
     <div class="wd-logo">Workday<span>®</span></div>
@@ -622,101 +594,32 @@
         <input class="form-input" type="password" placeholder="Confirm your password" />
       </div>
 
-      <button class="btn-wd" onclick="goTo(3)">Create Account and Continue →</button>
+      <button class="btn-wd" onclick="goTo(4)">Create Account and Continue →</button>
     </div>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════
-     SCREEN 3 — Apply Connect Loading
-═══════════════════════════════════════════════ -->
-<div class="screen" id="screen3">
-  <div class="progress-bar">
-    <div class="progress-steps">
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step active">3</div>
-      <div class="step-line"></div>
-      <div class="step">4</div>
-      <div class="step-line"></div>
-      <div class="step">5</div>
-    </div>
-    <div class="step-label">Step 3 of 5 — <span>Apply Connect Loading</span></div>
-  </div>
-
-  <div class="wd-header">
-    <div class="wd-logo">Workday<span>®</span></div>
-  </div>
-
-  <div class="content" style="display:flex; align-items:center; justify-content:center; padding-top: 40px;">
-    <div class="ext-screen">
-      <div class="ext-icon">⚡</div>
-      <div class="ext-title">Apply Connect is loading your application</div>
-      <div class="ext-subtitle">Pulling your LinkedIn profile data and pre-filling the application form. This takes a few seconds.</div>
-
-      <div class="progress-ring">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-
-      <div class="ext-steps">
-        <div class="ext-step-item">
-          <div class="check done" id="chk1">✓</div>
-          <span>LinkedIn profile detected</span>
-        </div>
-        <div class="ext-step-item">
-          <div class="check loading" id="chk2">⟳</div>
-          <span id="step2text">Uploading resume to Workday...</span>
-        </div>
-        <div class="ext-step-item">
-          <div class="check" id="chk3">3</div>
-          <span>Pre-filling application fields</span>
-        </div>
-        <div class="ext-step-item">
-          <div class="check" id="chk4">4</div>
-          <span>Ready — opening your application</span>
-        </div>
-      </div>
-
-      <button class="btn-continue" id="continueBtn" onclick="goTo(4)" style="display:none;">
-        Continue to Application Form →
-      </button>
-    </div>
-  </div>
-</div>
 
 
 <!-- ═══════════════════════════════════════════════
      SCREEN 4 — ATS Application Form
 ═══════════════════════════════════════════════ -->
 <div class="screen" id="screen4">
-  <div class="progress-bar">
-    <div class="progress-steps">
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step active">4</div>
-      <div class="step-line"></div>
-      <div class="step">5</div>
-    </div>
-    <div class="step-label">Step 4 of 5 — <span>Application Form</span></div>
-  </div>
-
 
   <div class="wd-header">
     <div class="wd-logo">Workday<span>®</span></div>
+  </div>
+
+  <div style="background:#E8F5E9; border-bottom: 1px solid #C8E6C9; padding: 10px 24px; font-size:13px; color:#1B5E20; display:flex; align-items:center; gap:8px;">
+    ⚡ <strong>Apply Connect has pre-filled your application</strong> from your LinkedIn profile. Review the fields below and submit.
   </div>
 
   <div class="ats-content" style="margin-top: 24px;">
 
     <div class="ats-job-bar">
       <div>
-        <div class="ats-job-title">Senior Product Manager — Payments</div>
+        <div class="ats-job-title">Senior Product Manager, Payments</div>
         <div class="ats-job-co">Razorpay · Bengaluru, India</div>
       </div>
     </div>
@@ -791,37 +694,30 @@
     <div class="section-card">
       <div class="section-title">Screening Questions</div>
       <div class="screening-note">
-        ⚡ <strong>Apply Connect Screening Assistant (Beta)</strong> — Click "Suggest answer" on any question. The extension reads your LinkedIn profile and drafts a response. Review and edit before submitting.
+        ⚡ <strong>Apply Connect</strong> has pre-filled structured questions from your LinkedIn profile. Open-ended questions require your input.
       </div>
 
       <div class="form-group">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <label class="form-label" style="margin-bottom:0;">Q1. Why do you want to join Razorpay?</label>
-          <button class="btn-suggest" onclick="suggestAnswer('q1')">⚡ Suggest answer</button>
-        </div>
+        <label class="form-label">Q1. Why do you want to join Razorpay?</label>
         <textarea class="form-textarea" id="q1" placeholder="Type your answer here..."></textarea>
-        <div class="suggest-hint" id="q1-hint" style="display:none;">✏️ Suggested from your LinkedIn profile — edit before submitting</div>
       </div>
 
       <div class="form-group">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <label class="form-label" style="margin-bottom:0;">Q2. Describe your experience working on payment or fintech products.</label>
-          <button class="btn-suggest" onclick="suggestAnswer('q2')">⚡ Suggest answer</button>
-        </div>
+        <label class="form-label">Q2. Describe your experience working on payment or fintech products.</label>
         <textarea class="form-textarea" id="q2" placeholder="Type your answer here..."></textarea>
-        <div class="suggest-hint" id="q2-hint" style="display:none;">✏️ Suggested from your LinkedIn profile — edit before submitting</div>
       </div>
 
       <div class="form-group">
         <label class="form-label">Q3. What is your current notice period?</label>
-        <select class="form-select">
+        <select class="form-select prefilled">
           <option value="">Select notice period</option>
           <option>Immediate joiner</option>
           <option>15 days</option>
-          <option>30 days</option>
+          <option selected>30 days</option>
           <option>60 days</option>
           <option>90 days</option>
         </select>
+        <div class="prefilled-badge">⚡ Pre-filled by Apply Connect</div>
       </div>
 
       <div class="submit-row">
@@ -837,20 +733,6 @@
      SCREEN 5 — Confirmation
 ═══════════════════════════════════════════════ -->
 <div class="screen" id="screen5">
-  <div class="progress-bar">
-    <div class="progress-steps">
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-      <div class="step-line done"></div>
-      <div class="step done">✓</div>
-    </div>
-    <div class="step-label"><span>Application submitted successfully</span></div>
-  </div>
 
   <div class="li-nav">
     <div class="li-logo">in</div>
@@ -909,74 +791,6 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen' + n).classList.add('active');
     window.scrollTo(0, 0);
-    if (n === 3) runExtAnimation();
-  }
-
-  const suggestions = {
-    q1: "Razorpay is solving a problem I have worked on directly — reducing friction in payment flows for merchants and customers. At ApplyBoard, I owned payment infrastructure for a platform processing tuition payments across 12 countries, and I experienced first-hand how a broken payment experience erodes trust. I want to bring that product depth to Razorpay's scale and help drive success rates higher for 8M+ merchants.",
-    q2: "At ApplyBoard I led the payments platform serving international students and partner institutions. I redesigned the checkout flow to reduce drop-off by 22%, integrated with Stripe and local payment providers across India, Canada, and the UK, and built a reconciliation dashboard that reduced settlement disputes by 40%. I understand both the technical complexity of payment rails and the user experience tradeoffs that drive conversion."
-  };
-
-  function suggestAnswer(id) {
-    const btn = document.querySelector(`button[onclick="suggestAnswer('${id}')"]`);
-    const ta = document.getElementById(id);
-    const hint = document.getElementById(id + '-hint');
-    btn.textContent = '⟳ Generating...';
-    btn.classList.add('loading');
-    btn.disabled = true;
-    setTimeout(() => {
-      ta.value = suggestions[id];
-      ta.style.borderColor = '#0A66C2';
-      hint.style.display = 'block';
-      btn.textContent = '✓ Suggested';
-      btn.classList.remove('loading');
-      btn.style.background = '#E8F5E9';
-      btn.style.color = '#057642';
-      btn.style.borderColor = '#057642';
-    }, 1200);
-  }
-
-  function runExtAnimation() {
-    const fill = document.getElementById('progressFill');
-    const chk2 = document.getElementById('chk2');
-    const chk3 = document.getElementById('chk3');
-    const chk4 = document.getElementById('chk4');
-    const step2text = document.getElementById('step2text');
-    const btn = document.getElementById('continueBtn');
-
-    fill.style.width = '0';
-    chk2.className = 'check loading';
-    chk3.className = 'check';
-    chk3.textContent = '3';
-    chk4.className = 'check';
-    chk4.textContent = '4';
-    btn.style.display = 'none';
-
-    setTimeout(() => { fill.style.width = '35%'; }, 100);
-
-    setTimeout(() => {
-      chk2.className = 'check done';
-      chk2.textContent = '✓';
-      step2text.textContent = 'Resume uploaded successfully';
-      chk3.className = 'check loading';
-      chk3.textContent = '⟳';
-      fill.style.width = '65%';
-    }, 1400);
-
-    setTimeout(() => {
-      chk3.className = 'check done';
-      chk3.textContent = '✓';
-      chk4.className = 'check loading';
-      chk4.textContent = '⟳';
-      fill.style.width = '90%';
-    }, 2600);
-
-    setTimeout(() => {
-      chk4.className = 'check done';
-      chk4.textContent = '✓';
-      fill.style.width = '100%';
-      btn.style.display = 'block';
-    }, 3800);
   }
 </script>
 </body>
