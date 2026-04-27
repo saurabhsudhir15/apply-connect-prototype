@@ -31,11 +31,11 @@ Account creation is reduced, not eliminated. The only field left is setting a pa
 
 This prototype was built as part of a structured product sprint:
 
-1. **Problem framing** — root cause analysis of application abandonment across LinkedIn's job seeker flow
-2. **Solution brainstorming** — 9 solutions generated using root-cause analysis and analogy thinking, ranging from quick wins to moonshots
-3. **Prioritization** — RICE scoring across all solutions. Apply Connect 2.0 scored 13.5 (P0). Next best: 4.0.
-4. **PRD** — 7-section product requirements document covering problem, solution, user flow, metrics, risks, and scope decisions
-5. **Prototype** — 4-screen interactive HTML prototype of the complete user flow
+1. **Problem framing** - root cause analysis of application abandonment across LinkedIn's job seeker flow
+2. **Solution brainstorming** - 9 solutions generated using root-cause analysis and analogy thinking, ranging from quick wins to moonshots
+3. **Prioritization** - RICE scoring across all solutions. Apply Connect 2.0 scored 13.5 (P0). Next best: 4.0.
+4. **PRD** - 7-section product requirements document covering problem, solution, user flow, metrics, risks, and scope decisions
+5. **Prototype** - 4-screen interactive HTML prototype of the complete user flow
 
 ## Success Metrics
 
